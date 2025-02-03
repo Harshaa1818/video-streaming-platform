@@ -1,30 +1,36 @@
 import { Button, Input } from '@mui/material'
-import Box from '@mui/material/Box'
 import React, { useState } from 'react'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { API } from '../utils/axiosInterceptor'
 
 function Register() {
-    const [confirmPassword, setConfirmPassword] = useState('')
-    const [password, setPassword] = useState('')
-    const [username, setUsername] = useState('')
-    const [validateConfirmPassword, setValidateConfirmPassword] = useState(true)
-    const [validatePassword, setValidatePassword] = useState(true)
-    const [validateUsername, setValidateUsername] = useState(true)
+    const [confirmPassword, setConfirmPassword] = useState<string>('')
+    const [password, setPassword] = useState<string>('')
+    const [username, setUsername] = useState<string>('')
+    const [validateConfirmPassword, setValidateConfirmPassword] = useState<boolean>(true)
+    const [validatePassword, setValidatePassword] = useState<boolean>(true)
+    const [validateUsername, setValidateUsername] = useState<boolean>(true)
     const navigate = useNavigate()
 
-    const handleSubmit = async() => {
+    const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
     
-
+        e.preventDefault();
         // make API call to register user
-        const data = await API.post('/register')
-        if(data){
-            alert('User registered successfully')
-            navigate('/login')
-        }
-        else{
-            alert('User already exists')
+        try {
+            const data = await API.post('/register', {
+                email: username,
+                password
+            })
+            if(data){
+                alert('User registered successfully')
+                navigate('/login')
+            }
+            else{
+                alert('User already exists')
+            }
+        } catch (error) {
+            alert('Registration failed, please try again!')
+            
         }
     }
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,8 +65,8 @@ function Register() {
   return (
     <div>
         <h1>Register Page</h1>
-     <Box 
-     sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap:'20px', justifyContent: 'center', }}>
+     <form onSubmit={handleSubmit} 
+     style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap:'20px', justifyContent: 'center', }}>
     <Input placeholder="Enter your Email" type='email'
     sx={{background:'white', paddingLeft:'20px', width:'100%', display:'flex', height:'50px', justifyContent:'center', color: validateUsername ? 'black' : 'red'}}
     onChange={handleEmailChange}/>
@@ -72,8 +78,8 @@ function Register() {
     onChange={handleConfirmPassword} 
     />
 
-    <Button variant="contained" color="primary" onClick={handleSubmit}>Register</Button>
-    </Box>
+    <Button variant="contained" color="primary" type="submit">Register</Button>
+    </form>
     </div>
     )
   
