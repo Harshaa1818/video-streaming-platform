@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  password      String
+  avatar        String?
+  meetingsHosted Meeting[] @relation("HostMeetings")
+  sentMessages   Message[] @relation("UserMessages")
+  meetingsJoined Participant[]
+  devices       Device[]
+  subscriptions Subscription[]
+  invitationsSent Invitation[] @relation("UserInvitations")
+  feedbacks      Feedback[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Meeting {
+  id          String        @id @default(uuid())
+  title       String
+  hostId      String
+  host        User          @relation(fields: [hostId], references: [id], name: "HostMeetings")
+  participants Participant[]
+  chatMessages Message[]
+  recordings   Recording[]
+  settings     MeetingSettings?
+  invitations  Invitation[]
+  status       MeetingStatus @default(SCHEDULED)
+  startTime    DateTime
+  endTime      DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Participant {
+  id         String  @id @default(uuid())
+  userId     String
+  meetingId  String
+  user       User    @relation(fields: [userId], references: [id])
+  meeting    Meeting @relation(fields: [meetingId], references: [id])
+  role       Role    @default(ATTENDEE)
+  joinedAt   DateTime @default(now())
+  leftAt     DateTime?
+}
+
+model Message {
+  id         String  @id @default(uuid())
+  senderId   String
+  sender     User    @relation(fields: [senderId], references: [id], name: "UserMessages")
+  meetingId  String
+  meeting    Meeting @relation(fields: [meetingId], references: [id])
+  content    String
+  createdAt  DateTime @default(now())
+}
+
+model Recording {
+  id         String  @id @default(uuid())
+  meetingId  String
+  meeting    Meeting @relation(fields: [meetingId], references: [id])
+  url        String
+  createdAt  DateTime @default(now())
+}
+
+model MeetingSettings {
+  id              String  @id @default(uuid())
+  meetingId       String  @unique
+  meeting         Meeting @relation(fields: [meetingId], references: [id])
+  allowRecording  Boolean @default(false)
+  muteOnEntry     Boolean @default(true)
+  waitingRoom     Boolean @default(true)
+  createdAt       DateTime @default(now())
+}
+
+model Invitation {
+  id          String  @id @default(uuid())
+  meetingId   String
+  invitedById String
+  email       String
+  status      InvitationStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  invitedBy   User    @relation(fields: [invitedById], references: [id], name: "UserInvitations")
+  meeting     Meeting @relation(fields: [meetingId], references: [id])
+}
+
+model Device {
+  id          String  @id @default(uuid())
+  userId      String
+  user        User    @relation(fields: [userId], references: [id])
+  deviceInfo  String  
+  lastActive  DateTime @default(now())
+}
+
+model Subscription {
+  id          String  @id @default(uuid())
+  userId      String
+  user        User    @relation(fields: [userId], references: [id])
+  plan        SubscriptionPlan @default(FREE)
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+}
+
+model Feedback {
+  id         String  @id @default(uuid())
+  userId     String
+  user       User    @relation(fields: [userId], references: [id])
+  rating     Int     // 1-5 stars
+  comment    String?
+  createdAt  DateTime @default(now())
+}
+enum Role {
+  HOST
+  CO_HOST
+  ATTENDEE
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
