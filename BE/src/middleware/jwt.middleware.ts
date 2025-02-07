@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
-export default async function AuthMiddleware(
+export default async function jwtMiddleware(
   Req: Request,
   Res: Response,
   Next: NextFunction
