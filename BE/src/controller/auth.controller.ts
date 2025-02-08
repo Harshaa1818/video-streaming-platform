@@ -2,10 +2,11 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import * as argon from "argon2";
 import prisma from "../utils/prisma";
+import { idText } from "typescript";
 
 interface User extends Request {
   user?: {
-    id: number;
+    id: string;
     email: string;
   };
 }
@@ -13,9 +14,11 @@ interface User extends Request {
 export async function Signup(Req: Request, Res: Response): Promise<void> {
   try {
     const {
+      name,
       email,
       password,
     }: {
+      name: string;
       email: string;
       password: string;
     } = Req.body;
@@ -38,6 +41,7 @@ export async function Signup(Req: Request, Res: Response): Promise<void> {
     const newUser = await prisma.user.create({
       data: {
         email,
+        name,
         password: await argon.hash(password),
       },
     });
@@ -107,13 +111,16 @@ export async function SignIn(Req: Request, Res: Response): Promise<void> {
 }
 
 export async function GetUser(Req: User, Res: Response): Promise<void> {
+  console.log(Req.body.userId);
   try {
     const user = await prisma.user.findUnique({
       where: {
-        id: Req.user?.id!,
+        id: Req.body.userId!,
       },
       select: {
+        id: true,
         email: true,
+        meetingsHosted: true,
       },
     });
     if (!user) {
