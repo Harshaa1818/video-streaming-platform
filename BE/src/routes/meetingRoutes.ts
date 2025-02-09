@@ -4,8 +4,14 @@ import {
   GetMeetings,
   JoinMeeting,
   LeaveMeeting,
+  StartMeeting,
+  EndMeeting,
+  DeleteMeeting,
+  MeetingStatus,
+  UpdateStatus,
 } from "../controller/meeting.controller";
 import jwtMiddleware from "../middleware/jwt.middleware";
+import MeetingOwnerMiddleware from "../middleware/meetingOwner.middleware";
 
 const meetingRouter = express.Router();
 
@@ -24,7 +30,6 @@ const meetingRouter = express.Router();
  *     tags: [Meetings]
  *     security:
  *       - BearerAuth: []
- *     description: Create a new meeting with provided details.
  *     requestBody:
  *       required: true
  *       content:
@@ -48,8 +53,6 @@ const meetingRouter = express.Router();
  *     responses:
  *       201:
  *         description: Meeting created successfully
- *       400:
- *         description: Invalid request data
  *       401:
  *         description: Unauthorized
  */
@@ -63,7 +66,6 @@ meetingRouter.post("/create", jwtMiddleware, CreateMeeting);
  *     tags: [Meetings]
  *     security:
  *       - BearerAuth: []
- *     description: Fetch all scheduled meetings.
  *     responses:
  *       200:
  *         description: Successfully retrieved meetings
@@ -84,14 +86,11 @@ meetingRouter.get("/get", jwtMiddleware, GetMeetings);
  *       - in: path
  *         name: id
  *         required: true
- *         description: Meeting ID
  *         schema:
  *           type: string
  *     responses:
  *       200:
  *         description: Meeting retrieved successfully
- *       401:
- *         description: Unauthorized
  *       404:
  *         description: Meeting not found
  */
@@ -99,7 +98,7 @@ meetingRouter.get("/get/:id", jwtMiddleware, GetMeetings);
 
 /**
  * @swagger
- * /api/meeting/join/{id}:
+ * /api/meeting/join/{meetingId}:
  *   post:
  *     summary: Join a meeting
  *     tags: [Meetings]
@@ -107,24 +106,21 @@ meetingRouter.get("/get/:id", jwtMiddleware, GetMeetings);
  *       - BearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: meetingId
  *         required: true
- *         description: Meeting ID to join
  *         schema:
  *           type: string
  *     responses:
  *       200:
  *         description: Successfully joined the meeting
- *       401:
- *         description: Unauthorized
  *       404:
  *         description: Meeting not found
  */
-meetingRouter.post("/join/:id", jwtMiddleware, JoinMeeting);
+meetingRouter.post("/join/:meetingId", jwtMiddleware, JoinMeeting);
 
 /**
  * @swagger
- * /api/meeting/leave/{id}:
+ * /api/meeting/leave/{meetingId}:
  *   post:
  *     summary: Leave a meeting
  *     tags: [Meetings]
@@ -132,19 +128,145 @@ meetingRouter.post("/join/:id", jwtMiddleware, JoinMeeting);
  *       - BearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: meetingId
  *         required: true
- *         description: Meeting ID to leave
  *         schema:
  *           type: string
  *     responses:
  *       200:
  *         description: Successfully left the meeting
- *       401:
- *         description: Unauthorized
  *       404:
  *         description: Meeting not found
  */
-meetingRouter.post("/leave/:id", jwtMiddleware, LeaveMeeting);
+meetingRouter.post("/leave/:meetingId", jwtMiddleware, LeaveMeeting);
+
+/**
+ * @swagger
+ * /api/meeting/start/{meetingId}:
+ *   post:
+ *     summary: Start a meeting
+ *     tags: [Meetings]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: meetingId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Meeting started
+ */
+meetingRouter.post(
+  "/start/:meetingId",
+  jwtMiddleware,
+  MeetingOwnerMiddleware,
+  StartMeeting
+);
+
+/**
+ * @swagger
+ * /api/meeting/end/{meetingId}:
+ *   post:
+ *     summary: End a meeting
+ *     tags: [Meetings]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: meetingId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Meeting ended
+ */
+meetingRouter.post(
+  "/end/:meetingId",
+  jwtMiddleware,
+  MeetingOwnerMiddleware,
+  EndMeeting
+);
+
+/**
+ * @swagger
+ * /api/meeting/delete/{meetingId}:
+ *   delete:
+ *     summary: Delete a meeting
+ *     tags: [Meetings]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: meetingId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Meeting deleted
+ */
+meetingRouter.delete(
+  "/delete/:meetingId",
+  jwtMiddleware,
+  MeetingOwnerMiddleware,
+  DeleteMeeting
+);
+
+/**
+ * @swagger
+ * /api/meeting/status/{meetingId}:
+ *   get:
+ *     summary: Get meeting status
+ *     tags: [Meetings]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: meetingId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Meeting status retrieved
+ */
+meetingRouter.get("/status/:meetingId", jwtMiddleware, MeetingStatus);
+
+/**
+ * @swagger
+ * /api/meeting/update-status/{meetingId}:
+ *   patch:
+ *     summary: Update meeting status
+ *     tags: [Meetings]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: meetingId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Meeting status updated
+ */
+meetingRouter.patch(
+  "/update-status/:meetingId",
+  jwtMiddleware,
+  MeetingOwnerMiddleware,
+  UpdateStatus
+);
 
 export default meetingRouter;
