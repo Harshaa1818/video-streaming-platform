@@ -5,6 +5,7 @@ import AuthRouter from "./routes/authRoute";
 import meetingRouter from "./routes/meetingRoutes";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
+import userRouter from "./routes/userRoute";
 
 dotenv.config();
 
@@ -13,7 +14,6 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Swagger configuration
 const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
@@ -42,7 +42,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ["./dist/routes/*.js"],
+  apis: ["./src/routes/*.ts"],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
@@ -50,6 +50,7 @@ const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use("/api/auth", AuthRouter);
+app.use("/api/users", userRouter);
 app.use("/api/meeting", meetingRouter);
 
 app.listen(3000, () => {

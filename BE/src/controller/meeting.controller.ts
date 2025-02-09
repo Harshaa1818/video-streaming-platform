@@ -194,3 +194,241 @@ export async function LeaveMeeting(Req: Request, Res: Response): Promise<void> {
     });
   }
 }
+
+export async function StartMeeting(Req: Request, Res: Response): Promise<void> {
+  const meetingId = Req.params.meetingId;
+  try {
+    const userID = (Req as unknown as UserRequest).user?.id;
+    if (!userID) {
+      Res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+    const meeting = await prisma.meeting.findUnique({
+      where: {
+        id: meetingId,
+      },
+      include: {
+        host: true,
+      },
+    });
+    if (!meeting) {
+      Res.status(404).json({
+        message: "Meeting not found",
+      });
+      return;
+    }
+    if (meeting.hostId !== userID) {
+      Res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+    await prisma.meeting.update({
+      where: {
+        id: meetingId,
+      },
+      data: {
+        status: "ONGOING",
+      },
+    });
+    Res.status(200).json({
+      message: "Meeting started",
+    });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    Res.status(500).json({
+      message: errorMessage,
+    });
+  }
+}
+
+export async function EndMeeting(Req: Request, Res: Response): Promise<void> {
+  const meetingId = Req.params.meetingId;
+  try {
+    const userID = (Req as unknown as UserRequest).user?.id;
+    if (!userID) {
+      Res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+    const meeting = await prisma.meeting.findUnique({
+      where: {
+        id: meetingId,
+      },
+      include: {
+        host: true,
+      },
+    });
+    if (!meeting) {
+      Res.status(404).json({
+        message: "Meeting not found",
+      });
+      return;
+    }
+    if (meeting.hostId !== userID) {
+      Res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+    await prisma.meeting.update({
+      where: {
+        id: meetingId,
+      },
+      data: {
+        status: "COMPLETED",
+      },
+    });
+    Res.status(200).json({
+      message: "Meeting ended",
+    });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    Res.status(500).json({
+      message: errorMessage,
+    });
+  }
+}
+
+export async function DeleteMeeting(
+  Req: Request,
+  Res: Response
+): Promise<void> {
+  const meetingId = Req.params.meetingId;
+  try {
+    const userID = (Req as unknown as UserRequest).user?.id;
+    if (!userID) {
+      Res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+    const meeting = await prisma.meeting.findUnique({
+      where: {
+        id: meetingId,
+      },
+      include: {
+        host: true,
+      },
+    });
+    if (!meeting) {
+      Res.status(404).json({
+        message: "Meeting not found",
+      });
+      return;
+    }
+    if (meeting.hostId !== userID) {
+      Res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+    await prisma.meeting.delete({
+      where: {
+        id: meetingId,
+      },
+    });
+    Res.status(204).end();
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    Res.status(500).json({
+      message: errorMessage,
+    });
+  }
+}
+
+export async function MeetingStatus(
+  Req: Request,
+  Res: Response
+): Promise<void> {
+  const meetingId = Req.params.meetingId;
+  try {
+    const userID = (Req as unknown as UserRequest).user?.id;
+    if (!userID) {
+      Res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+    const meeting = await prisma.meeting.findUnique({
+      where: {
+        id: meetingId,
+      },
+      include: {
+        host: true,
+      },
+    });
+    if (!meeting) {
+      Res.status(404).json({
+        message: "Meeting not found",
+      });
+      return;
+    }
+    Res.status(200).json({
+      status: meeting.status,
+    });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    Res.status(500).json({
+      message: errorMessage,
+    });
+  }
+}
+
+export async function UpdateStatus(Req: Request, Res: Response): Promise<void> {
+  const meetingId = Req.params.meetingId;
+  const status = Req.body.status;
+  try {
+    const userID = (Req as unknown as UserRequest).user?.id;
+    if (!userID) {
+      Res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+    const meeting = await prisma.meeting.findUnique({
+      where: {
+        id: meetingId,
+      },
+      include: {
+        host: true,
+      },
+    });
+    if (!meeting) {
+      Res.status(404).json({
+        message: "Meeting not found",
+      });
+      return;
+    }
+    if (meeting.hostId !== userID) {
+      Res.status(401).json({
+        message: "Unauthorized",
+      });
+      return;
+    }
+    await prisma.meeting.update({
+      where: {
+        id: meetingId,
+      },
+      data: {
+        status: status,
+      },
+    });
+    Res.status(200).json({
+      message: "Meeting status updated",
+    });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    Res.status(500).json({
+      message: errorMessage,
+    });
+  }
+}
