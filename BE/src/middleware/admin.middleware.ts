@@ -15,10 +15,6 @@ export default async function isAdmin(req: Request, res: Response, next: any) {
       message: "Unauthorized",
     });
     return;
-  }
-
-  if (req.body.role === "admin") {
-    next();
   } else {
     res.status(401).json({
       message: "Unauthorized",

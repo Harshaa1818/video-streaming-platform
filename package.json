@@ -1,0 +1,32 @@
+{
+  "name": "video-streaming-platform",
+  "version": "1.0.0",
+  "description": "A video streaming platform.",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd BE && npm run build && cd ../FE && npm run build",
+    "dev": "concurrently \"cd BE && npm run dev\" \"cd FE && npm run dev\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Harshaa1818/video-streaming-platform.git"
+  },
+  "keywords": [
+    "video",
+    "streaming",
+    "platform"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Harshaa1818/video-streaming-platform/issues"
+  },
+  "homepage": "https://github.com/Harshaa1818/video-streaming-platform#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "private": true,
+  "dependencies": {
+    "concurrently": "^8.0.0"
+  }
+}
