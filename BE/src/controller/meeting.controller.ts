@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import prisma from "../utils/prisma";
 import type { UserRequest } from "../types";
+import { resourceUsage } from "process";
 
 type MeetingBody = {
   title: string;
@@ -15,7 +16,7 @@ export async function CreateMeeting(
 ): Promise<void> {
   const { title, description, startTime, endTime }: MeetingBody = Req.body;
   try {
-    const userID = (Req as unknown as UserRequest).user?.id;
+    const userID = Req.userId;
     if (!userID) {
       Res.status(401).json({
         message: "Unauthorized",
@@ -32,7 +33,12 @@ export async function CreateMeeting(
         status: "SCHEDULED",
       },
       include: {
-        host: true,
+        host: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
     Res.status(201).json({
@@ -56,10 +62,20 @@ export async function GetMeetings(Req: Request, Res: Response): Promise<void> {
           id: paramsID,
         },
         include: {
-          host: true,
+          host: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
           participants: {
             include: {
-              user: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
           chatMessages: true,
@@ -84,7 +100,12 @@ export async function GetMeetings(Req: Request, Res: Response): Promise<void> {
         host: true,
         participants: {
           include: {
-            user: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
       },

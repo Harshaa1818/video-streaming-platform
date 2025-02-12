@@ -13,7 +13,7 @@ const AuthRouter = express.Router();
 
 /**
  * @swagger
- * /auth/signup:
+ * /api/auth/signup:
  *   post:
  *     summary: Register a new user
  *     tags: [Authentication]
@@ -41,7 +41,7 @@ AuthRouter.post("/signup", Signup);
 
 /**
  * @swagger
- * /auth/login:
+ * /api/auth/login:
  *   post:
  *     summary: Login a user
  *     tags: [Authentication]
@@ -69,7 +69,7 @@ AuthRouter.post("/login", SignIn);
 
 /**
  * @swagger
- * /auth/me:
+ * /api/auth/me:
  *   get:
  *     summary: Get current user details
  *     tags: [Authentication]

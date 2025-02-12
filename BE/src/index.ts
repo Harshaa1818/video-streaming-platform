@@ -6,8 +6,11 @@ import meetingRouter from "./routes/meetingRoutes";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
 import userRouter from "./routes/userRoute";
+import path from "path";
 
-dotenv.config();
+dotenv.config({
+  path: path.resolve(__dirname, "/.env"),
+});
 
 const app = express();
 

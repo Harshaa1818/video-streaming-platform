@@ -18,10 +18,10 @@ export default async function Middleware(
       throw new Error("SECRET_KEY is not defined");
     }
     const decoded = jwt.verify(token, process.env.SECRET_KEY) as {
-      id: number;
+      id: string;
       email: string;
     };
-    Req.body.userId = decoded.id;
+    Req.userId = decoded.id;
     Next();
   } catch (error) {
     Res.status(401).json({
